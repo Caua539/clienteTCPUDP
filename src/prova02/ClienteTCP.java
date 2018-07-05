@@ -50,23 +50,24 @@ public class ClienteTCP {
             os = conexao.getOutputStream();
             mensagem = "GET LOCALS";
             os.write(mensagem.getBytes());
+            os.flush();
             
             is = conexao.getInputStream();
             byte[] b = new byte[256];
+            byte[] c = new byte[256];
             is.read(b);
             String resposta = new String(b);
             System.out.println("SERVIDOR >>>> "+resposta);
+            os.flush();
             
             String[] cidades = resposta.split("\\|");
-            System.out.println(Arrays.toString(cidades));
             mensagem = "REGISTER "+cidades[1];
             os.write(mensagem.getBytes());
             
-            is.read(b);
-            resposta = new String(b);
+            is.read(c);
+            resposta = new String(c);
             System.out.println("SERVIDOR >>>> "+resposta);
-            conexao.close();
-            String[] tcpinfo = resposta.split("\\|");
+            String[] tcpinfo = resposta.replace("\n", "").trim().split("\\|");
             
             return tcpinfo;
             

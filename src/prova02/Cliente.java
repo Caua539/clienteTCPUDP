@@ -10,20 +10,20 @@ import java.util.Scanner;
 public class Cliente {
 
     public static void main(String[] args) { 
-        String endereco = "192.168.1.113";
+        String endereco = "192.168.5.216";
         Scanner keyb = new Scanner(System.in); 
         String resp;
         ClienteTCP c = new ClienteTCP(endereco, 12345);
         String[] dados = c.connectTCP();
         
-        ClienteUDP u = new ClienteUDP(endereco, dados[1], dados[3], Integer.parseInt(dados[4]));
+        ClienteUDP u = new ClienteUDP(endereco, dados[1], dados[2], dados[3], dados[4]);
         u.start();
         do {
             
             System.out.println("DIGITE 'FIM' SE DESEJA PARAR.");
             resp = keyb.nextLine();
             
-        } while(resp != "FIM");
+        } while(!"fim".equals(resp));
         
         u.endthis();
     }
