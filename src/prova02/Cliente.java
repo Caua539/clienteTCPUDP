@@ -6,11 +6,13 @@
 package prova02;
 
 import java.util.Scanner;
-
+/*
+* AUTHOR: Cauã Martins Pessoa
+*/
 public class Cliente {
 
     public static void main(String[] args) { 
-        String endereco = "192.168.5.216";
+        String endereco = "192.168.1.113";
         Scanner keyb = new Scanner(System.in); 
         String resp;
         ClienteTCP c = new ClienteTCP(endereco, 12345);

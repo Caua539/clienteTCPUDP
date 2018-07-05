@@ -14,7 +14,7 @@ import java.util.Map;
 
 /**
  *
- * @author caua5
+ * @author Cauã Martins Pessoa
  */
 public class ClienteUDP extends Thread{
     
@@ -57,58 +57,55 @@ public class ClienteUDP extends Thread{
             
             DatagramSocket clientSocket = new DatagramSocket();
             InetAddress IP = InetAddress.getByName(endereco);
-            byte[] sendData = new byte[1024];
-            byte[] recieveData = new byte[1024];
             
             mensagem = "START "+token;
-            sendData = mensagem.getBytes();
+            System.out.println("CLIENTE >>>> "+mensagem);
+            byte[] sendData = mensagem.getBytes();
             DatagramPacket sendpct = new DatagramPacket(sendData, sendData.length, IP, 54321);
             clientSocket.send(sendpct);
             
-            DatagramPacket recievepct = new DatagramPacket(recieveData, recieveData.length);
-            clientSocket.receive(recievepct);
-            resposta = new String(recievepct.getData());
-            System.out.println("SERVIDOR >>>> "+resposta);
-            resposta = resposta.trim();
+            byte[] receiveData = new byte[1024];
+            DatagramPacket receivepct = new DatagramPacket(receiveData, receiveData.length);
+            clientSocket.receive(receivepct);
             
-            if (resposta.equals("OK")) {
-                System.out.println("Oi?");
-                byte[] sdata = new byte[1024];
-                DatagramPacket spct = new DatagramPacket(sdata, sdata.length, IP, portaudp);
+            resposta = new String(receivepct.getData());
+            resposta = resposta.trim();
+            System.out.println("SERVIDOR <<<< "+resposta);
+            
+            DatagramSocket receivesckt = new DatagramSocket(this.portaudp);
+            
+            
+            
+            while(controle) {
+                receivesckt.receive(receivepct);
+                resposta = new String(receivepct.getData());
                 
-                do {
+                System.out.println("SERVIDOR <<<< "+resposta);
+                resposta = resposta.replace("TEMP ", "");
+                dados = resposta.split(separador);
+                int aux = 0;
                     
-                    clientSocket.receive(spct);
-                    resposta = new String(spct.getData());
-                    System.out.println("SERVIDOR >>>>> "+resposta);
-                    resposta.replace("TEMP ", "");
-                    dados = resposta.split(separador);
-                    int aux = 0;
-                    
-                    for (Map.Entry<String, String> entry : dict.entrySet()){
+                for (Map.Entry<String, String> entry : dict.entrySet()){
                         
-                        dict.put(entry.getKey(), dados[aux]);
-                        aux++;
-                    }
+                    dict.put(entry.getKey(), dados[aux]);
+                    aux++;
+                }
                     
-                    System.out.println("========================================================");
-                    System.out.println(String.format("Localidade: %s", dict.get("L")));
-                    System.out.println(String.format("Data: %s", dict.get("D")));
-                    System.out.println(String.format("Temperaturas máxima e mínima previstas: [Mín: %s] e [Max: %s]", dict.get("M"), dict.get("X")));
-                    System.out.println(String.format("Temperatura Atual: %s graus às %s horas", dict.get("T"), dict.get("H")));
-                    System.out.println("========================================================");
-                    
-                } while(controle);
-                
-                mensagem = "STOP "+token;
-                sendData = mensagem.getBytes();
-                sendpct = new DatagramPacket(sendData, sendData.length, IP, portaudp);
-                clientSocket.send(sendpct);
-                
-                clientSocket.receive(recievepct);
-                resposta = new String(recievepct.getData());
-                System.out.println("SERVIDOR >>>> "+resposta);
+                System.out.println("========================================================");
+                System.out.println(String.format("Localidade: %s", dict.get("H")));
+                System.out.println(String.format("Data: %s", dict.get("D")));
+                System.out.println(String.format("Temperaturas máxima e mínima previstas: [Mín: %s] e [Max: %s]", dict.get("L"), dict.get("M")));
+                System.out.println(String.format("Temperatura Atual: %s graus às %s horas", dict.get("X"), dict.get("T")));
+                System.out.println("========================================================");                
             }
+            
+            byte[] stop = ("STOP "+token).getBytes();
+            sendpct = new DatagramPacket(stop, stop.length, IP, 54321);
+            clientSocket.send(sendpct);
+
+            clientSocket.receive(receivepct);
+            resposta = new String(receivepct.getData());
+            System.out.println("SERVIDOR <<<< "+resposta);
             
             
         } catch (IOException e) {
